@@ -6,6 +6,7 @@
 
 @implementation ScreenshotBlocker
 UIImageView* cover;
+BOOL stopRecording = false;
 - (void)pluginInitialize {
     NSLog(@"Starting ScreenshotBlocker plugin");
 
@@ -42,6 +43,7 @@ UIImageView* cover;
 {
     CDVPluginResult* pluginResult = nil;
     NSLog(@"Abilita observers");
+    stopRecording = false;
     /*
      [[NSNotificationCenter defaultCenter]addObserver:self
      selector:@selector(appDidBecomeActive)
@@ -61,6 +63,12 @@ UIImageView* cover;
 }
 -(void)listen:(CDVInvokedUrlCommand*)command {
     _eventCommand = command;
+}
+
+-(void)disable:(CDVInvokedUrlCommand*)command {
+    NSLog(@"Disable recording");
+    stopRecording = true;
+    [self setupView];
 }
 
 
@@ -86,7 +94,7 @@ UIImageView* cover;
     BOOL isCaptured = [[UIScreen mainScreen] isCaptured];
     NSLog(@"Is screen captured? %@", (isCaptured?@"SI":@"NO"));
 
-    if ([[ScreenRecordingDetector sharedInstance] isRecording]) {
+    if ([[ScreenRecordingDetector sharedInstance] isRecording] && stopRecording) {
         [self webView].alpha = 0.f;
         NSLog(@"Registro o prendo screenshots");
     } else {
