@@ -6,5 +6,6 @@
 
 - (void)enable:(CDVInvokedUrlCommand*)command;
 -(void)listen:(CDVInvokedUrlCommand*)command;
+-(void)disable:(CDVInvokedUrlCommand*)command;
 
 @end
