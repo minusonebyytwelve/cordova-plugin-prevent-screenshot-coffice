@@ -113,12 +113,22 @@ BOOL stopRecording = false;
 }
 -(void)applicationWillResignActive {
     [ScreenRecordingDetector stopDetectorTimer];
-    if(cover == nil) {
-        cover = [[UIImageView alloc] initWithFrame:[self.webView frame]];
-        cover.backgroundColor = [UIColor blackColor];
+    if (cover == nil) {
+        CGRect screenBounds = [UIScreen mainScreen].bounds;
+        UIView *overlayView = [[UIView alloc] initWithFrame:screenBounds];
+        overlayView.backgroundColor = [UIColor whiteColor];
+        overlayView.alpha = 0.0;
+        overlayView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        cover = [[UIImageView alloc] initWithFrame:screenBounds];
+        [cover addSubview:overlayView];
         [self.webView addSubview:cover];
+        [UIView animateWithDuration:0.5
+                         animations:^{
+                             overlayView.alpha = 0.95;
+                         }];
     }
 }
+
 -(void)screenCaptureStatusChanged {
     [self setupView];
 }
