@@ -6,6 +6,8 @@
 
 @implementation ScreenshotBlocker
 UIImageView* cover;
+CustomView* preventedView;
+UIView *secureView;
 BOOL stopRecording = false;
 - (void)pluginInitialize {
     NSLog(@"Starting ScreenshotBlocker plugin");
@@ -42,24 +44,11 @@ BOOL stopRecording = false;
 - (void)enable:(CDVInvokedUrlCommand *)command
 {
     CDVPluginResult* pluginResult = nil;
-    NSLog(@"Abilita observers");
     stopRecording = false;
-    /*
-     [[NSNotificationCenter defaultCenter]addObserver:self
-     selector:@selector(appDidBecomeActive)
-     name:UIApplicationDidBecomeActiveNotification
-     object:nil];
-     [[NSNotificationCenter defaultCenter]addObserver:self
-     selector:@selector(applicationWillResignActive)
-     name:UIApplicationWillResignActiveNotification
-     object:nil];
-     [[NSNotificationCenter defaultCenter] addObserver:self
-     selector:@selector(screenCaptureStatusChanged)
-     name:kScreenRecordingDetectorRecordingStatusChangedNotification
-     object:nil];
-     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-     */
+    [secureView removeFromSuperview];
+    [self.viewController.view addSubview:self.webView];
+    secureView = nil;
+    preventedView = nil;
 }
 -(void)listen:(CDVInvokedUrlCommand*)command {
     _eventCommand = command;
@@ -69,6 +58,35 @@ BOOL stopRecording = false;
     NSLog(@"Disable recording");
     stopRecording = true;
     [self setupView];
+    preventedView = [[CustomView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    preventedView.secureTextEntry = YES;
+    preventedView.translatesAutoresizingMaskIntoConstraints = YES;
+    
+    for (UIView *subview in preventedView.subviews) {
+        if ([NSStringFromClass([subview class]) containsString:@"CanvasView"]) {
+            secureView = subview;
+            secureView.frame = preventedView.frame;
+            secureView.userInteractionEnabled = YES;
+            secureView.translatesAutoresizingMaskIntoConstraints = NO;
+            
+            break;
+        }
+    }
+    
+    [secureView addSubview:self.webView];
+    
+    [self.viewController.view addSubview:secureView];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [secureView.topAnchor constraintEqualToAnchor:self.viewController.view.topAnchor],
+        [secureView.bottomAnchor constraintEqualToAnchor:self.viewController.view.bottomAnchor],
+        [secureView.leadingAnchor constraintEqualToAnchor:self.viewController.view.leadingAnchor],
+        [secureView.trailingAnchor constraintEqualToAnchor:self.viewController.view.trailingAnchor]
+    ]];
+    
+    // Below code to add it to front
+    [self.viewController.view bringSubviewToFront:self.webView];
+    [self.webView becomeFirstResponder];
 }
 
 
@@ -102,6 +120,8 @@ BOOL stopRecording = false;
         NSLog(@"Non registro");
 
     }
+    
+
 }
 
 -(void)appDidBecomeActive {
@@ -133,5 +153,18 @@ BOOL stopRecording = false;
     [self setupView];
 }
 
+@end
+
+@implementation CustomView
+
+// Allow this view to become the first responder
+- (BOOL)canBecomeFirstResponder {
+    return YES;
+}
+
+// Called when the view becomes the first responder
+- (BOOL)becomeFirstResponder {
+    return YES;
+}
 
 @end
