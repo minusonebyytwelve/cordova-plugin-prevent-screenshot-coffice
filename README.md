@@ -19,11 +19,11 @@ Cordova local build:
 
 ```js
 document.addEventListener("deviceready", onDeviceReady, false);
-// Enable
+// To enable taking Screenshots/ScreenRecording 
 function onDeviceReady() {
   window.plugins.preventscreenshot.enable(successCallback, errorCallback);
 }
-// Disable
+// To disable taking Screenshots/ScreenRecording 
 function onDeviceReady() {
   window.plugins.preventscreenshot.disable(successCallback, errorCallback);
 }
