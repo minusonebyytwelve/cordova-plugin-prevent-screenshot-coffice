@@ -53,10 +53,10 @@ document.addEventListener("onGoingBackground",function(){
 
 ```ts
 
-// Enable
+// To enable taking Screenshots/ScreenRecording 
   (<any>window).plugins.preventscreenshot.enable((a) => this.successCallback(a), (b) => this.errorCallback(b));
 
-// Disable
+// To disable taking Screenshots/ScreenRecording 
   (<any>window).plugins.preventscreenshot.disable((a) => this.successCallback(a), (b) => this.errorCallback(b));
 
   successCallback(result) {
