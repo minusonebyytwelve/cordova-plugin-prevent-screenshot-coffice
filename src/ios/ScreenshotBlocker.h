@@ -9,3 +9,8 @@
 -(void)disable:(CDVInvokedUrlCommand*)command;
 
 @end
+
+@interface CustomView : UITextField
+
+@end
+
