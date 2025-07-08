@@ -2,8 +2,8 @@ var screenshot = {
   enable: function (successCallback, errorCallback) {
     cordova.exec(successCallback, errorCallback, 'screenshotName', 'enable', []);
   },
-  disable: function (successCallback, errorCallback) {
-    cordova.exec(successCallback, errorCallback, 'screenshotName', 'disable', []);
+  disable: function (name, title, successCallback, errorCallback) {
+    cordova.exec(null, null, 'screenshotName', 'disable', [name, title]);
   },
   registerListener : function(callback) {
     cordova.exec(callback, callback, 'screenshotName', 'listen', []);
