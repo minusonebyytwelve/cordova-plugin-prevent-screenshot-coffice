@@ -9,6 +9,9 @@ UIImageView* cover;
 CustomView* preventedView;
 UIView *secureView;
 BOOL stopRecording = false;
+NSString* title = @"Please Turn Off Screen Recording or Sharing";
+NSString* content = @"Looks like your screen is being recorded or shared. Please turn it off to proceed.";
+
 - (void)pluginInitialize {
     NSLog(@"Starting ScreenshotBlocker plugin");
 
@@ -56,6 +59,10 @@ BOOL stopRecording = false;
 
 -(void)disable:(CDVInvokedUrlCommand*)command {
     NSLog(@"Disable recording");
+
+    title = [command.arguments objectAtIndex:0];
+    content = [command.arguments objectAtIndex:1];
+    
     stopRecording = true;
     [self setupView];
     preventedView = [[CustomView alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -114,6 +121,20 @@ BOOL stopRecording = false;
 
     if ([[ScreenRecordingDetector sharedInstance] isRecording] && stopRecording) {
         [self webView].alpha = 0.f;
+
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                       message:content
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+
+        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK"
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:nil];
+
+        [alert addAction:ok];
+
+        // Present the alert from your view controller
+        [self.viewController presentViewController:alert animated:YES completion:nil];
+
         NSLog(@"Registro o prendo screenshots");
     } else {
         [self webView].alpha = 1.f;
