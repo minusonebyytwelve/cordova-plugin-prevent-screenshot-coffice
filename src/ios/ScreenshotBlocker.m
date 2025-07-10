@@ -60,8 +60,10 @@ NSString* content = @"Looks like your screen is being recorded or shared. Please
 -(void)disable:(CDVInvokedUrlCommand*)command {
     NSLog(@"Disable recording");
 
-    title = [command.arguments objectAtIndex:0];
-    content = [command.arguments objectAtIndex:1];
+    if ([command.arguments count] > 1) {
+        title = [command.arguments objectAtIndex:0];
+        content = [command.arguments objectAtIndex:1];
+    }
     
     stopRecording = true;
     [self setupView];
