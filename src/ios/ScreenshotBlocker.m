@@ -11,6 +11,7 @@ UIView *secureView;
 BOOL stopRecording = false;
 NSString* title = @"Please Turn Off Screen Recording or Sharing";
 NSString* content = @"Looks like your screen is being recorded or shared. Please turn it off to proceed.";
+UILabel *stopRecordingLabel;
 
 - (void)pluginInitialize {
     NSLog(@"Starting ScreenshotBlocker plugin");
@@ -60,10 +61,8 @@ NSString* content = @"Looks like your screen is being recorded or shared. Please
 -(void)disable:(CDVInvokedUrlCommand*)command {
     NSLog(@"Disable recording");
 
-    if ([command.arguments count] > 1) {
-        title = [command.arguments objectAtIndex:0];
-        content = [command.arguments objectAtIndex:1];
-    }
+    title = [command.arguments objectAtIndex:0];
+    content = [command.arguments objectAtIndex:1];
     
     stopRecording = true;
     [self setupView];
@@ -124,21 +123,54 @@ NSString* content = @"Looks like your screen is being recorded or shared. Please
     if ([[ScreenRecordingDetector sharedInstance] isRecording] && stopRecording) {
         [self webView].alpha = 0.f;
 
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
-                                                                       message:content
-                                                                preferredStyle:UIAlertControllerStyleAlert];
+//        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+//                                                                       message:content
+//                                                                preferredStyle:UIAlertControllerStyleAlert];
+//
+//        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK"
+//                                                     style:UIAlertActionStyleDefault
+//                                                   handler:nil];
+//
+//        [alert addAction:ok];
+//
+//        // Present the alert from your view controller
+//        [self.viewController presentViewController:alert animated:YES completion:nil];
 
-        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK"
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:nil];
+        // Create the label
+        
+        NSString *notification = [NSString stringWithFormat:@"%@\n%@", title, content];
 
-        [alert addAction:ok];
+        
+        stopRecordingLabel = [[UILabel alloc] init];
+        stopRecordingLabel.text = notification;
+        stopRecordingLabel.textColor = [UIColor blackColor];
+//        stopRecordingLabel.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.7];
+        stopRecordingLabel.textAlignment = NSTextAlignmentCenter;
+        stopRecordingLabel.font = [UIFont boldSystemFontOfSize:14];
+        stopRecordingLabel.clipsToBounds = YES;
+        stopRecordingLabel.numberOfLines = 0;
+        
+        // Get the superview of the webView
+        UIView *parentView = self.webView.superview;
 
-        // Present the alert from your view controller
-        [self.viewController presentViewController:alert animated:YES completion:nil];
+        CGFloat labelWidth = parentView.bounds.size.width - 60;
+        CGFloat labelHeight = parentView.bounds.size.height - 60;
+
+        // Center horizontally and vertically
+        CGFloat x = 30;
+        CGFloat y = 30;
+
+        stopRecordingLabel.frame = CGRectMake(x, y, labelWidth, labelHeight);
+
+        // Add to the main view above the webview
+        [self.webView.superview addSubview:stopRecordingLabel];
 
         NSLog(@"Registro o prendo screenshots");
     } else {
+        if (stopRecordingLabel) {
+            [stopRecordingLabel removeFromSuperview];
+            stopRecordingLabel = nil;
+        }
         [self webView].alpha = 1.f;
         NSLog(@"Non registro");
 
